@@ -71,13 +71,32 @@ app.post("/deposit/", (req, res) => {
 })
 
 app.get("/withdraw", (req, res) => {
-    res.send("withdrawal")
+    let {
+        customerId,
+        withdrawalAmount,
+    } = req.body
+
+    for (let i = 0; i < customerArray.length; i++) {
+        if (customerId === customerArray[i].customerId) {
+            customerArray[i].totalBalance -= withdrawalAmount
+            return res.send({
+                RemainingBalance: customerArray[i].totalBalance
+            })
+        } else {
+            res.send("Account did not found")
+        }
+    }
+    res.send()
 })
 
 app.get("/getInfo/:id", (req, res) => {
     let id = Number(req.params.id)
     const result = customerArray.find(element => element.customerId === id)
     res.send(result)
+})
+
+app.get("/getAllInfo", (req, res) => {
+    res.send(customerArray)
 })
 
 app.listen(port, () => console.log(`app listening at http://localhost:${port}`))
