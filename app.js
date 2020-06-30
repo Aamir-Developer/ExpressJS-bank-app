@@ -4,8 +4,6 @@ const port = process.env.port || 3000
 
 app.use(express.json())
 let customerArray = [];
-let checker = 0;
-let flag = true;
 
 app.get("/home", (req, res) => {
     res.send("Welcome to the Online Banking")
@@ -18,6 +16,8 @@ app.post("/newaccount", (req, res) => {
         customerAge,
         initialBalance
     } = req.body
+    let checker = 0;
+    req.body.totalBalance = initialBalance;
 
     for (i = 0; i < customerArray.length; i++) {
         if (customerId === customerArray[i].customerId) {
@@ -34,14 +34,17 @@ app.post("/newaccount", (req, res) => {
 
 app.get("/checkbalance/:id", (req, res) => {
     let id = Number(req.params.id)
+    let flag = true;
     for (i = 0; i < customerArray.length; i++) {
         if (customerArray[i].customerId === id) {
-            flag != true;
-            res.send(customerArray[i].initialBalance)
-            break;
+            flag = !flag;
+            return res.send({
+                Balance: customerArray[i].totalBalance
+            })
         }
     }
-    if (flag = true) {
+
+    if (flag === true) {
         res.send("Account doesnot exist")
     }
 })
@@ -52,11 +55,15 @@ app.post("/deposit/", (req, res) => {
         depositAmount
     } = req.body
 
-    let totalBalance = 0
-    if (customerId == customerArray.customerId) {
-        totalBalance += depositAmount
-    } else {
-        res.send("Account did not found")
+    for (let i = 0; i < customerArray.length; i++) {
+        if (customerId == customerArray[i].customerId) {
+            customerArray[i].totalBalance += depositAmount
+            return res.send({
+                Balance: customerArray[i].totalBalance
+            })
+        } else {
+            res.send("Account did not found")
+        }
     }
 
 
