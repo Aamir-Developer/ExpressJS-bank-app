@@ -18,8 +18,7 @@ app.post("/newaccount", (req, res) => {
     } = req.body
     let checker = 0;
     req.body.totalBalance = initialBalance;
-
-    for (i = 0; i < customerArray.length; i++) {
+    for (let i = 0; i < customerArray.length; i++) {
         if (customerId === customerArray[i].customerId) {
             checker = -1
             res.send("Account already exist");
@@ -35,17 +34,16 @@ app.post("/newaccount", (req, res) => {
 app.get("/checkbalance/:id", (req, res) => {
     let id = Number(req.params.id)
     let flag = true;
-    for (i = 0; i < customerArray.length; i++) {
+    for (let i = 0; i < customerArray.length; i++) {
         if (customerArray[i].customerId === id) {
             flag = !flag;
             return res.send({
-                Balance: customerArray[i].totalBalance
+                Available_Balance: customerArray[i].totalBalance
             })
         }
     }
-
     if (flag === true) {
-        res.send("Account doesnot exist")
+        res.send("Account did not found")
     }
 })
 
@@ -54,7 +52,6 @@ app.post("/deposit/", (req, res) => {
         customerId,
         depositAmount
     } = req.body
-
     for (let i = 0; i < customerArray.length; i++) {
         if (customerId == customerArray[i].customerId) {
             customerArray[i].totalBalance += depositAmount
@@ -65,38 +62,50 @@ app.post("/deposit/", (req, res) => {
             res.send("Account did not found")
         }
     }
-
-
-    res.send(totalBalance)
 })
 
-app.get("/withdraw", (req, res) => {
+app.post("/withdraw", (req, res) => {
     let {
         customerId,
         withdrawalAmount,
     } = req.body
-
     for (let i = 0; i < customerArray.length; i++) {
-        if (customerId === customerArray[i].customerId) {
+        if (customerId === customerArray[i].customerId && withdrawalAmount <= customerArray[i].totalBalance) {
             customerArray[i].totalBalance -= withdrawalAmount
             return res.send({
-                RemainingBalance: customerArray[i].totalBalance
+                Remaining_Balance: customerArray[i].totalBalance
             })
+        } else if (customerId === customerArray[i].customerId && withdrawalAmount > customerArray[i].totalBalance) {
+            return res.send("No sufficient Balance")
         } else {
             res.send("Account did not found")
         }
     }
-    res.send()
 })
 
 app.get("/getInfo/:id", (req, res) => {
     let id = Number(req.params.id)
-    const result = customerArray.find(element => element.customerId === id)
-    res.send(result)
+    for (let i = 0; i < customerArray.length; i++) {
+        if (id === customerArray[i].customerId) {
+            return res.send({
+                Data: customerArray[i]
+            })
+        }
+        else{
+            res.send("Account did not found")    
+        }
+    }
+    // if (id != customerArray[i].customerId) {
+    //     res.send("Account did not found")
+    // }
 })
 
 app.get("/getAllInfo", (req, res) => {
-    res.send(customerArray)
+    if (customerArray === undefined || customerArray.length === 0) {
+        return res.send("No users found or data undefined")
+    } else {
+        res.send(customerArray)
+    }
 })
 
 app.listen(port, () => console.log(`app listening at http://localhost:${port}`))
