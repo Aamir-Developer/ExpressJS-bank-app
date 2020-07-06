@@ -17,6 +17,7 @@ app.post("/newaccount", (req, res) => {
         initialBalance
     } = req.body
     let checker = 0;
+    let currentCustomer = [];
     req.body.totalBalance = initialBalance;
     for (let i = 0; i < customerArray.length; i++) {
         if (customerId === customerArray[i].customerId) {
@@ -26,8 +27,11 @@ app.post("/newaccount", (req, res) => {
         }
     }
     if (checker != -1) {
+        currentCustomer.push(req.body)
         customerArray.push(req.body)
-        res.send(customerArray)
+        res.send({
+            output: currentCustomer
+        })
     }
 })
 
@@ -90,14 +94,10 @@ app.get("/getInfo/:id", (req, res) => {
             return res.send({
                 Data: customerArray[i]
             })
-        }
-        else{
-            res.send("Account did not found")    
+        } else {
+            res.send("Account did not found")
         }
     }
-    // if (id != customerArray[i].customerId) {
-    //     res.send("Account did not found")
-    // }
 })
 
 app.get("/getAllInfo", (req, res) => {
